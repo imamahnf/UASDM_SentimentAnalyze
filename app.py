@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import pickle
 import re
+import numpy as np
 import matplotlib.pyplot as plt
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
@@ -78,14 +79,16 @@ if option == "Teks Tunggal":
             # Extract features using TF-IDF
             features = tfidf_vectorizer.transform([preprocessed_text])
             
-            # Predict sentiment
+            # Predict sentiment and confidence
             prediction = svm_model.predict(features)[0]
+            confidence_scores = svm_model.decision_function(features)
+            confidence = np.max(confidence_scores)  # Ambil confidence tertinggi
             
             # Display result
             if prediction == 'positive':
-                st.success(f"Hasil: Sentimen Positif 😊 (Akurasi Model: {model_accuracy * 100:.2f}%)")
+                st.success(f"Hasil: Sentimen Positif 😊 (Confidence: {confidence:.2f})")
             elif prediction == 'negative':
-                st.error(f"Hasil: Sentimen Negatif 😠 (Akurasi Model: {model_accuracy * 100:.2f}%)")
+                st.error(f"Hasil: Sentimen Negatif 😠 (Confidence: {confidence:.2f})")
         else:
             st.warning("Mohon masukkan teks untuk dianalisis!")
 
@@ -116,12 +119,13 @@ elif option == "Unggah File CSV":
                     # Predict sentiments
                     df['sentiment'] = svm_model.predict(features)
                     
-                    # Tambahkan kolom akurasi
-                    df['model_accuracy'] = model_accuracy
+                    # Tambahkan confidence scores
+                    confidence_scores = svm_model.decision_function(features)
+                    df['confidence'] = np.max(confidence_scores, axis=1)
 
                     # Display results
                     st.success("Analisis selesai! Berikut hasilnya:")
-                    st.dataframe(df[[text_column, 'sentiment', 'model_accuracy']])
+                    st.dataframe(df[[text_column, 'sentiment', 'confidence']])
                     
                     # Visualize results with a pie chart
                     sentiment_counts = df['sentiment'].value_counts()

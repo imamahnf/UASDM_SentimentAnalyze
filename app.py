@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import pickle
 import re
+import numpy as np
 import matplotlib.pyplot as plt
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory

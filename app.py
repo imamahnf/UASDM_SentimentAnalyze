@@ -78,14 +78,16 @@ if option == "Teks Tunggal":
             # Extract features using TF-IDF
             features = tfidf_vectorizer.transform([preprocessed_text])
             
-            # Predict sentiment
+            # Predict sentiment and confidence
             prediction = svm_model.predict(features)[0]
+            confidence_scores = svm_model.decision_function(features)
+            confidence = np.max(confidence_scores)  # Ambil confidence tertinggi
             
             # Display result
             if prediction == 'positive':
-                st.success(f"Hasil: Sentimen Positif 😊 (Akurasi Model: {model_accuracy * 100:.2f}%)")
+                st.success(f"Hasil: Sentimen Positif 😊 (Confidence: {confidence:.2f})")
             elif prediction == 'negative':
-                st.error(f"Hasil: Sentimen Negatif 😠 (Akurasi Model: {model_accuracy * 100:.2f}%)")
+                st.error(f"Hasil: Sentimen Negatif 😠 (Confidence: {confidence:.2f})")
         else:
             st.warning("Mohon masukkan teks untuk dianalisis!")
 
